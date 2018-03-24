@@ -25,4 +25,4 @@ def sql_query_all(query):
     else:
         return answer
 
-    #
+    #fdsf
