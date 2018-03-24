@@ -24,3 +24,5 @@ def sql_query_all(query):
         return False
     else:
         return answer
+
+    #
