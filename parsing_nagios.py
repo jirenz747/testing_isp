@@ -3,7 +3,6 @@ import re
 from myslq import sql_query
 from myslq import sql_update
 from myslq import sql_query_all
-from excel import exist_object
 from passwords import nagios_password
 import excel
 
@@ -74,7 +73,6 @@ for shop_obj in obj.keys():
         print(f"Изменяем статус для объекта {shop_obj} - <{providers_ip}>")
         sql_update(f'update shops set shop_status = "Even" where shop_obj = "{shop_obj}"')
         shop_id = list(sql_query(f'SELECT * FROM shops where shop_obj = "{shop_obj}"'))[0]
-        print(shop_id)
         _, _, _, billing = excel.get_list_object(shop_obj)
         add_providers(shop_obj, providers_ip, shop_id, billing)
 

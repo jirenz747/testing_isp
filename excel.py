@@ -3,17 +3,17 @@ import xlrd
 OBJECT_NAME = 4
 OBJECT_ADDRESS = 3
 OBJECT_FULL_NAME = 0
-OBJECT_NETWORK = 6
+OBJECT_NETWORK = 7
 OBJECT_STATUS = 1
-OBJECT_ISP1 = 7
-OBJECT_ISP1_NETWORK = 8
-OBJECT_ISP1_CE = 9
-OBJECT_ISP1_PE = 10
-OBJECT_ISP2 = 12
-OBJECT_ISP2_NETWORK = 13
-OBJECT_ISP2_CE = 14
-OBJECT_ISP2_PE = 15
-OBJECT_ISP_BILLING = 23
+OBJECT_ISP1 = 8
+OBJECT_ISP1_NETWORK = 9
+OBJECT_ISP1_CE = 10
+OBJECT_ISP1_PE = 11
+OBJECT_ISP2 = 13
+OBJECT_ISP2_NETWORK = 14
+OBJECT_ISP2_CE = 15
+OBJECT_ISP2_PE = 16
+OBJECT_ISP_BILLING = 24
 
 obj = {}
 workbook = xlrd.open_workbook('Network_no_pass.xlsx')
@@ -44,6 +44,7 @@ def exist_provider(object, provider):
         return True
     if find_provider(object, provider) == 'isp2':
         return True
+    print("Объект не найден в Файле Network no pass")
     return False
 
 # Функция возврачает список CE,PE,NAME,Network для данного провайдера иначе возвращает False.
@@ -105,6 +106,6 @@ for i in range(250):
 
 #print(obj['mos2']['isp2'].get('name'))
 # print(get_list_provider("vol4", "prostor"))
-# print(get_list_provider_ip("vol4-gw", '172.16.21.105'))
+# print(get_list_provider_ip("ufa5-gw", '172.16.23.137'))
 # print(get_list_object('vol4'))
 
