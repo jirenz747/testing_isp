@@ -31,6 +31,7 @@ s = response.content.decode()
 obj = {}
 l_status_object = re.findall("class='status(\w+)'.+host=(\w+\d+\-gw)'", s)
 l_link = re.findall("class='statusBGCRITICAL'><a href='(.+)'>", s)
+l_providers = []
 count = 0
 
 for host_status, host_obj in l_status_object:
@@ -49,6 +50,7 @@ for host_status, host_obj in l_status_object:
 
 for shop_obj in obj.keys():
     providers_ip = obj[shop_obj]['ip']
+    l_providers.append(obj[shop_obj]['ip'])
     status = obj[shop_obj]['status']
     #Если объект не создан, то создаем его
     provider = None
@@ -93,7 +95,8 @@ for li in answer:
     triger = True
     li = list(li)
     #print(li)
-    for ip in providers_ip:
+    for ip in l_providers:
+        #print(li[4], ip)
         if ip in li[4]:
             triger = False
     if triger:
