@@ -3,10 +3,10 @@ from passwords import network_device_password
 
 LOGIN, PASSWORD, ENABLE_PASSWORD = network_device_password()
 
-t = None
+
 def connect_cisco_router(ip_device):
-    t = pexpect.spawn(f'ssh {LOGIN}@{PASSWORD}', timeout=5)
-    i = t.expect([pexpect.TIMEOUT, 'Password'])
+    t = pexpect.spawn(f'ssh {LOGIN}@{ip_device}', timeout=30)
+    i = t.expect([pexpect.TIMEOUT, '[Pp]assword'])
     if i == 0:
         print(f"{ip_device} - Недоступен")
         return False
@@ -30,11 +30,13 @@ def connect_cisco_router(ip_device):
     t.expect('#')
     return t
 
-def command_send(command):
+
+def command_send(t, command):
     t.sendline(command)
     t.expect('#')
     lines = str(t.before)
-    print(lines.replace('\\r\\n', '\n').replace(f'b\'{command}', command))
+    #print(lines.replace('\\r\\n\\r\\n', '\\r\\n').replace('\\r\\n', '\n').replace(f'b\'{command}', command))
+    return lines.replace('\\r\\n\\r\\n', '\\r\\n').replace('\\r\\n', '\n').replace(f'b\'{command}', command)
 
 
 

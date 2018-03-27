@@ -33,7 +33,7 @@ l_status_object = re.findall("class='status(\w+)'.+host=(\w+\d+\-gw)'", s)
 l_link = re.findall("class='statusBGCRITICAL'><a href='(.+)'>", s)
 l_providers = []
 count = 0
-
+print('#'*20, 'START','#' *20, "\n")
 for host_status, host_obj in l_status_object:
     if str(host_status).lower() in 'hostdown':
         print(host_status, host_obj)
@@ -71,7 +71,7 @@ for shop_obj in obj.keys():
     answer = sql_query(f'select * from providers t1 inner join shops t2 on t1.shop_id = t2.shop_id where t2.shop_obj ="{shop_obj}" and t1.status_problem = 0 and t1.our_ip = "{providers_ip}"')
 
     if answer is False:
-        print(answer, "\n\n")
+        #print(answer, "\n\n")
         print(f"Изменяем статус для объекта {shop_obj} - <{providers_ip}>")
         sql_update(f'update shops set shop_status = "Even" where shop_obj = "{shop_obj}"')
         shop_id = list(sql_query(f'SELECT * FROM shops where shop_obj = "{shop_obj}"'))[0]
@@ -100,9 +100,8 @@ for li in answer:
         if ip in li[4]:
             triger = False
     if triger:
-        print(li[2], " Провайдер теперь имеет статус NORMAL")
+        print(li[2], li[4], " Провайдер теперь имеет статус NORMAL")
         sql_update(f'UPDATE providers SET date_end_problem = now(), status_problem = 1 WHERE id = {li[0]} and status_problem = 0')
 
-
-
+print('#' * 20, 'END', '#' * 20, "\n")
 #print(l_status_object)

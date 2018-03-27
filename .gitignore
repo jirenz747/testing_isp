@@ -4,3 +4,4 @@
 *.xlsx
 /passwords.py
 /shops.db
+/*.log
