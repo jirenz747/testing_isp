@@ -55,6 +55,7 @@ def get_list_provider(object, provider):
     else:
         return False
 
+# Получить список
 def get_list_provider_ip(object, ip):
     object = str(object).replace('-gw', '')
     if not exist_object(object):
