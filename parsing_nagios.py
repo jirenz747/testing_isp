@@ -8,6 +8,7 @@ import excel
 
 NAGIOS_LOGIN, NAGIOS_PASSWORD, NAGIOS_SERVER = get_nagios_password()
 
+
 def add_providers(shop_obj, providers_ip, shop_id, billing):
     provider = excel.get_list_provider_ip(shop_obj, providers_ip)
     if provider:
