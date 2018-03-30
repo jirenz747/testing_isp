@@ -3,6 +3,7 @@ import requests
 from connecting_devices import command_send
 from connecting_devices import connect_cisco_router
 from passwords import get_ip_address
+from passwords import get_service_desc_password
 from myslq import sql_query_all
 
 PING_REPEAT = 10
@@ -11,6 +12,7 @@ PING_SIZE = 1400
 PROVIDER_SPEED = 500000
 
 IP_COD_BEELINE, IP_COD_PROSTOR, IP_COD_DOMRU, IP_COD_INET = get_ip_address()
+SERVICE_LOGIN, SERVICE_PASS = get_service_desc_password()
 
 INTERVAL_PROBLEM_OBJECT = 1
 
@@ -127,7 +129,7 @@ def show_int_load(provider,speed):
 def intraservice(obj_name):
     obj_name = obj_name.replace(' ', '%20')
 
-    response = requests.get(f'http://d.borisov:Jre450knez!@co-hd.modis.ru/api/task?fields=Id,Name,StatusId,Creator,ServiceId,Description&search="{obj_name}"&ServiceId=348')
+    response = requests.get(f'http://{SERVICE_LOGIN}:{SERVICE_PASS}@co-hd.modis.ru/api/task?fields=Id,Name,StatusId,Creator,ServiceId,Description&search="{obj_name}"&ServiceId=348')
     s = response.content.decode()
     if '"StatusId":31' in s:
         print('Заявка открыта!')
