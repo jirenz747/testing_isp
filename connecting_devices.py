@@ -31,6 +31,7 @@ def connect_cisco_router(ip_device):
     t.expect('#')
     return t
 
+
 def command_send(command):
     global t
     t.sendline(command)
