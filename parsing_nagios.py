@@ -3,10 +3,10 @@ import re
 from myslq import sql_query
 from myslq import sql_update
 from myslq import sql_query_all
-from passwords import nagios_password
+from passwords import get_nagios_password
 import excel
 
-NAGIOS_LOGIN, NAGIOS_PASSWORD, NAGIOS_SERVER = nagios_password()
+NAGIOS_LOGIN, NAGIOS_PASSWORD, NAGIOS_SERVER = get_nagios_password()
 
 def add_providers(shop_obj, providers_ip, shop_id, billing):
     provider = excel.get_list_provider_ip(shop_obj, providers_ip)

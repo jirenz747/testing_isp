@@ -79,7 +79,7 @@ def get_list_object(object):
 #print(sheet.cell(2, OBJECT_FULL_NAME).value)
 for i in range(250):
     if sheet.cell(i, OBJECT_FULL_NAME).value != '':
-        if str(sheet.cell(i, OBJECT_STATUS).value).lower() in 'открыт':
+        if 'открыт' in str(sheet.cell(i, OBJECT_STATUS).value).lower():
             obj[sheet.cell(i, OBJECT_NAME).value] = {
                 'name': sheet.cell(i, OBJECT_FULL_NAME).value,
                 'address': sheet.cell(i, OBJECT_ADDRESS).value,
@@ -100,6 +100,9 @@ for i in range(250):
                     'ce': sheet.cell(i, OBJECT_ISP2_CE).value,
                     'pe':  sheet.cell(i, OBJECT_ISP2_PE).value
                 }
+        else:
+            print(sheet.cell(i, OBJECT_FULL_NAME).value, " - Магазин закрыт, или на реконструкции")
+
 
 # for key, values in obj.items():
 #     print(key, list(values))
@@ -108,4 +111,5 @@ for i in range(250):
 # print(get_list_provider("vol4", "prostor"))
 # print(get_list_provider_ip("ufa5-gw", '172.16.23.137'))
 # print(get_list_object('vol4'))
+
 
