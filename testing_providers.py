@@ -17,6 +17,7 @@ INTERVAL_PROBLEM_OBJECT = 1
 t = None
 full_text = ''
 
+
 def main():
     global t
     answer = sql_query_all("select t2.shop_obj, t2.shop_obj_name, t2.shop_address, t2.shop_ip, t1.provider_name, t1.provider_ip, t1.our_ip, t1.date_start_problem, t1.billingID, t1.id "
