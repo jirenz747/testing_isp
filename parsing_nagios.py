@@ -20,7 +20,7 @@ def add_providers(shop_obj, providers_ip, shop_id, billing):
         return True
         # print(full_name, network, address)
     else:
-        print(f"{shop_obj} - {providers_ip} - IP провайдера не найден в файле Network no pass")
+        print(f"*{shop_obj} - {providers_ip} - IP провайдера не найден в файле Network no pass")
         return False
 
 
@@ -66,7 +66,7 @@ for shop_obj in obj.keys():
             add_providers(shop_obj, providers_ip, shop_id, billing)
             continue
         else:
-            print(f"Объект {shop_obj} - Не найден в файле Network no pass")
+            print(f"*Объект {shop_obj} - Не найден в файле Network no pass")
             continue
 
     answer = sql_query(f'select * from providers t1 inner join shops t2 on t1.shop_id = t2.shop_id where t2.shop_obj ="{shop_obj}" and t1.status_problem = 0 and t1.our_ip = "{providers_ip}"')
