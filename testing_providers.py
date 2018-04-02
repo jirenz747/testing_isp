@@ -5,19 +5,28 @@ from connecting_devices import connect_cisco_router
 from passwords import get_ip_address
 from passwords import get_service_desc_password
 from myslq import sql_query_all
+from send_email import send_email
 
 PING_REPEAT = 10
-EXT_PING_REPEAT = 100
-PING_SIZE = 1400
-PROVIDER_SPEED = 500000
+EXT_PING_REPEAT = 100  # Расширенный пинг, используется, если обычный прошел удачно
+PING_SIZE = 1400  # Размер отправляемых пакетов
+PROVIDER_SPEED = 500000  # Максимально допустимая загрузка канала,
+# после данного значения скрипт будет думать, что канал загружен.
+# По идее необходимо сформировать в БД, для кажого провайдера свою скорость и считать среднее значение
+
+MAXIMUM_LOSTS_PACKETS = 3  # Допустимое количество потерянных пакетов. После чего канал считается неработоспособным
+MAXIMUM_DELAY = 300  # Допустимая задержка для канала
 
 IP_COD_BEELINE, IP_COD_PROSTOR, IP_COD_DOMRU, IP_COD_INET = get_ip_address()
 SERVICE_LOGIN, SERVICE_PASS = get_service_desc_password()
 
 INTERVAL_PROBLEM_OBJECT = 1
 
-t = None
+# Глобальные переменные
+t = None  # Переменная для подключения к оборудованию.
 full_text = ''
+result = ''
+###
 
 def main():
     global t
@@ -25,53 +34,99 @@ def main():
                            f"FROM providers t1 INNER JOIN shops t2 ON t1.shop_id = t2.shop_id where t1.status_problem = 0 and (date_add(t1.date_start_problem, interval {INTERVAL_PROBLEM_OBJECT} minute) < now())  and (t1.date_end_problem IS NULL)");
 
     for li in answer:
+        global EXT_PING_REPEAT
         global full_text
+        global result
         full_text = ''
+        ip_cod = ''
         obj, obj_name, address, ip_addr, provider, pe, ce, _, billing, *_ = li
-        print(obj, obj_name, address, ip_addr, provider, pe, ce, billing)
-        print('#' * 20)
-        intraservice(obj_name)
+        print('\n\n', obj, obj_name, address, ip_addr, provider, pe, ce, billing)
+        if intraservice(obj_name):
+            continue
         t = connect_cisco_router(ip_addr)
+        i, rate_input, rate_output = get_int_load(provider, PROVIDER_SPEED)
+        if(i):
+            print(obj_name, provider, f'Имеется загрузка канала:\nInput:{rate_input}\nOutput:{rate_output}')
+            continue
 
-        if(show_int_load(provider, PROVIDER_SPEED)):
-            print(obj_name, provider, 'Имеется загрузка канала')
-            #continue
+        if 'beeline' in provider.lower():
+            ip_cod = IP_COD_BEELINE
+            full_text = 'ID канала: ' + billing + '\n'
+        elif 'prostor' in provider.lower():
+            ip_cod = IP_COD_PROSTOR
+        elif 'domru' in provider.lower():
+            ip_cod = IP_COD_DOMRU
+        else:
+            ip_cod = IP_COD_INET
 
-        #command_send('sh ver')
+        full_text += f'Начинаем проверку каналов на объекте: {obj_name} по адресу - {address}\n'
+        full_text += '#' * 80 + '\n'
+        full_text += f'Проверка из магазина до шлюза провайдера - {provider}\n'
         i, text, *_ = test_ping(f'ping {pe} repeat {PING_REPEAT} source {ce} size {PING_SIZE} timeout 1')
         if i == False:
-            full_text += f"{obj}#" + text + '\nШлюз провайдера недоступен!'
+            full_text += f"{obj}#" + text + '\n' + '#' * 80 + '\nШлюз провайдера недоступен!\n'
+            result = 'Result: Шлюз провайдера недоступен!'
+            traceroute(f'traceroute ip {ip_cod} source {ce} timeout 1 ttl 1 5 numeric')
             print(full_text)
+            if intraservice(obj_name):
+                continue
+            send_email(f'{obj_name} {address}', full_text, result)
             continue
 
         i, text, avr, lose_percent, *_ = test_ping(f'ping {pe} repeat {EXT_PING_REPEAT} source {ce} size {PING_SIZE} timeout 1')
-        full_text += f"{obj}#" + text + '\n' + '#' * 20 + '\n'
+        full_text += f"{obj}#" + text + '\n' + '#' * 80 + '\n'
+        full_text += '\n' + '#' * 80 + '\n'
+        full_text += f'Проверка доступности канала до нашего ЦОДа через {provider}:\n'
+        i, text, avr, success_packet, all_packet =  test_to_cod(ip_cod, ce, obj)
 
-        if 'beeline' in provider.lower():
-            test_to_cod(IP_COD_BEELINE, ce, obj)
-        elif 'prostor' in provider.lower():
-            print("We are here PROSTOR")
-            test_to_cod(IP_COD_PROSTOR, ce, obj)
-        elif 'domru' in provider.lower():
-            test_to_cod(IP_COD_DOMRU, ce, obj)
-        else:
-            test_to_cod(IP_COD_INET, ce, obj)
+        if not i:
+            full_text += f"{obj}#" + text + '\n' + '#' * 80 + '\nНет доступности до нашего ЦОДа!\n'
+            traceroute(f'traceroute ip {ip_cod} source {ce} timeout 1 ttl 1 5 numeric')
+            print(full_text)
+            if intraservice(obj_name):
+                continue
+            send_email(f'{obj_name} {address}', full_text, result)
+            continue
+        if (int(avr) < 300) and (int(success_packet) > EXT_PING_REPEAT - 30):
+            EXT_PING_REPEAT = 200
+            i, text, avr, success_packet, all_packet = test_to_cod(ip_cod, ce, obj)
+            full_text += f"{obj}#" + text + '\n' + '#' * 80 + '\n'
+            EXT_PING_REPEAT = 100
+
+        #print(rate_input, int(rate_output), success_packet, all_packet)
+        traceroute(f'traceroute ip {ip_cod} source {ce} timeout 1 ttl 1 5 numeric')
+        number_lost_packet = int(all_packet) - int(success_packet)
+        if number_lost_packet >= MAXIMUM_LOSTS_PACKETS:
+            result = f'Result: Замечены потери трафика. Количество потеряных пакетов {number_lost_packet}'
+            full_text += f'Замечены потери трафика. Количество потеряных пакетов {number_lost_packet}\n'
+            full_text += 'При этом загрузка канала составляет:\nInput: {:.2f} Kbit'.format(rate_input / 1024)
+            full_text += '\nOutput: {:.2f} Kbit\n'.format(rate_output / 1024)
+            if intraservice(obj_name):
+                continue
+            send_email(f'{obj_name} {address}', full_text, result)
+        elif int(avr) > MAXIMUM_DELAY:
+            result = f'Result: Слишком большие задержки. Задержки составляют {avr}'
+            full_text +=  f'Слишком большие задержки. Задержка составляет {avr}\n'
+            full_text += 'При этом загрузка канала составляет:\nInput: {:.2f} Kbit'.format(rate_input / 1024)
+            full_text += '\nOutput: {:.2f} Kbit\n'.format(rate_output / 1024)
+            if intraservice(obj_name):
+                continue
+            send_email(f'{obj_name} {address}', full_text, result)
         print(full_text)
 
 
 def test_to_cod(cod_ip, ce, obj):
     global full_text
-    i, text, *_ = test_ping(f'ping {cod_ip} repeat {PING_REPEAT} source {ce} size {PING_SIZE} timeout 1')
+    global result
+    i, out, avr, success_packet, all_packet = test_ping(f'ping {cod_ip} repeat {PING_REPEAT} source {ce} size {PING_SIZE} timeout 1')
     if i == False:
-        full_text += f"{obj}#" + text + '\nНет доступности до нашего Цод!'
+        result = 'Result: Нет доступности до нашего ЦОДа!'
+        return [i, out, avr, success_packet, all_packet]
+    i, out, avr, success_packet, all_packet = test_ping(f'ping {cod_ip} repeat {EXT_PING_REPEAT} source {ce} size {PING_SIZE} timeout 1')
+    return [i, out, avr, success_packet, all_packet]
 
-        return
-    i, text, avr, lose_percent, *_ = test_ping(f'ping {cod_ip} repeat {EXT_PING_REPEAT} source {ce} size {PING_SIZE} timeout 1')
-    full_text += f"{obj}#" + text + '\n' + '#' * 20 + '\n'
-    return
 
 def test_ping(test):
-    #print(test)
     global t
     out = command_send(test)
     match = re.search('\d+\/(\d+)\/\d+', out)
@@ -83,11 +138,18 @@ def test_ping(test):
     return [True, out, avr, match_2.group(1), match_2.group(2)]
 
 
-# Возвращает FALSE, если загрузки канала нет.
-def show_int_load(provider,speed):
-    # int_tun_1 = None
-    # int_tun_2 = None
+def traceroute(test):
+    global t
+    global full_text
+    full_text += '\n' + '#' * 80 + '\n'
+    out = command_send(test)
+    full_text += out
+    full_text += '\n' + '#' * 80 + '\n'
+    return out
 
+
+# Возвращает FALSE, если загрузки канала нет.
+def get_int_load(provider,speed):
     provider = provider.lower()
     print(provider)
     if 'beeline' in provider:
@@ -102,33 +164,23 @@ def show_int_load(provider,speed):
     else:
         int_tun_1 = command_send('show int tun1')
         int_tun_2 = command_send('show int tun2')
-    #print(int_tun_1)
-    #print(int_tun_2)
-
-    # int_tun_1_input = 0
-    # int_tun_1_output = 0
-    # int_tun_2_input = 0
-    # int_tun_2_output = 0
     match = re.search('input rate (\d+) ', int_tun_1)
-    int_tun_1_input = match.group(1)
+    int_tun_1_input = int(match.group(1))
     match = re.search('output rate (\d+) ', int_tun_1)
-    int_tun_1_output = match.group(1)
+    int_tun_1_output = int(match.group(1))
     match = re.search('input rate (\d+) ', int_tun_2)
-    int_tun_2_input = match.group(1)
+    int_tun_2_input = int(match.group(1))
     match = re.search('output rate (\d+) ', int_tun_2)
-    int_tun_2_output = match.group(1)
-    #print('#' * 10)
-    #print(type(int_tun_1_input), int_tun_1_output)
-    #print(int_tun_2_input, int_tun_2_output)
-    #print('#' * 10)
-    if(int(int_tun_1_input) > speed or int(int_tun_1_output) > speed or int(int_tun_2_input) > speed or int(int_tun_2_output)> speed):
-        return True
-    return False
+    int_tun_2_output = int(match.group(1))
+    #print('\nInput: ', int_tun_1_input + int_tun_2_input)
+    #print('Ouput: ', int_tun_1_output + int_tun_2_output)
+    if (int_tun_1_input > speed or int_tun_1_output > speed or int_tun_2_input > speed or int_tun_2_output > speed):
+        return [True, int_tun_1_input + int_tun_2_input, int_tun_1_output + int_tun_2_output]
+    return [False, int_tun_1_input + int_tun_2_input, int_tun_1_output + int_tun_2_output]
 
 
 def intraservice(obj_name):
     obj_name = obj_name.replace(' ', '%20')
-
     response = requests.get(f'http://{SERVICE_LOGIN}:{SERVICE_PASS}@co-hd.modis.ru/api/task?fields=Id,Name,StatusId,Creator,ServiceId,Description&search="{obj_name}"&ServiceId=348')
     s = response.content.decode()
     if '"StatusId":31' in s:
