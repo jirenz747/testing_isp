@@ -16,9 +16,9 @@ OBJECT_ISP2_NETWORK = 14
 OBJECT_ISP2_CE = 15
 OBJECT_ISP2_PE = 16
 OBJECT_ISP_BILLING = 24
-
+DIR = '/var/scripts/'
 obj = {}
-workbook = xlrd.open_workbook('Network_no_pass.xlsx')
+workbook = xlrd.open_workbook(f'{DIR}Network_no_pass.xlsx')
 sheet = workbook.sheet_by_index(0)
 
 #Функция проверяет существование объекта
