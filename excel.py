@@ -1,5 +1,7 @@
 import xlrd
 
+# Статические строковые индексы. Жесткая привязка. Если добавляется столбец, то также необходимо заново провести индексацию
+
 OBJECT_NAME = 4
 OBJECT_ADDRESS = 3
 OBJECT_FULL_NAME = 0
@@ -102,7 +104,8 @@ for i in range(250):
                     'pe':  sheet.cell(i, OBJECT_ISP2_PE).value
                 }
         else:
-            print(sheet.cell(i, OBJECT_FULL_NAME).value, " - Магазин закрыт, или на реконструкции")
+            pass
+            #print(sheet.cell(i, OBJECT_FULL_NAME).value, " - Магазин закрыт, или на реконструкции")
 
 
 # for key, values in obj.items():
