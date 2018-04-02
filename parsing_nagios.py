@@ -13,6 +13,7 @@ def add_providers(shop_obj, providers_ip, shop_id, billing):
     provider = excel.get_list_provider_ip(shop_obj, providers_ip)
     if provider:
         provider_name, _, ce, pe = provider
+        provider_name = provider_name.replace('"', '').replace('\'','')
         print(f"Добавляем провайдера {provider}")
         sql_update(
             f'insert into providers (shop_id, provider_name, provider_ip, our_ip, date_start_problem, status_problem, billingID) '
