@@ -7,10 +7,13 @@ t = None
 def connect_cisco_router(ip_device):
     global t
     t = pexpect.spawn(f'ssh {LOGIN}@{ip_device}', timeout=120)
-    i = t.expect([pexpect.TIMEOUT, '[Pp]assword'])
+    i = t.expect([pexpect.TIMEOUT, '[Pp]assword','\(yes\/no\)'])
     if i == 0:
         print(f"{ip_device} - Недоступен")
         return False
+    if i == 2:
+        t.sendline("yes")
+        i = t.expect(['[Pp]assword'])
     t.sendline(PASSWORD)
     i = t.expect(['[Pp]assword', '>', '#'])
     if i == 0:
