@@ -24,7 +24,6 @@ def add_providers(shop_obj, providers_ip, shop_id, billing):
         print(f"*{shop_obj} - {providers_ip} - IP провайдера не найден в файле Network no pass")
         return False
 
-
 response = requests.get(
     f"http://{NAGIOS_LOGIN}:{NAGIOS_PASSWORD}@{NAGIOS_SERVER}/nagios/cgi-bin/status.cgi?servicegroup=ISP1_AND_ISP2&style" \
     "=detail&servicestatustypes=16&hoststatustypes=15&serviceprops=0&hostprops=0")
