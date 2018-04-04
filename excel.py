@@ -113,7 +113,7 @@ for i in range(250):
 
 #print(obj['mos2']['isp2'].get('name'))
 # print(get_list_provider("vol4", "prostor"))
-# print(get_list_provider_ip("ufa5-gw", '172.16.23.137'))
-# print(get_list_object('vol4'))
+#print(get_list_provider_ip("ufa5-gw", '172.16.23.137'))
+#print(get_list_object('vol4'))
 
 
