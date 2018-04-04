@@ -42,6 +42,8 @@ for host_status, host_obj in l_status_object:
             print(f"Update odject {host_obj}")
             sql_update(f'UPDATE shops SET shop_status ="HOSTDOWN" WHERE shop_obj = "{host_obj}"')
     else:
+        if not host_obj in l_link[count]:
+            count += 1
         response = requests.get(f"http://{NAGIOS_LOGIN}:{NAGIOS_PASSWORD}@{NAGIOS_SERVER}/nagios/cgi-bin/{l_link[count]}")
         page = response.content.decode()
         match = re.search('<p>(\d+\.\d+\.\d+\.\d+).+</p>', page)
