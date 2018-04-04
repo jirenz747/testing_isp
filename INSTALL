@@ -1,0 +1,23 @@
+INSTALL
+
+
+Для работы данной программы необходима версия python 3.6 и выше
+Процесс установки:
+1. скачиваем данную программу ( git clone https://github.com/jirenz747/testing_isp.git )
+2. заходим в новый каталог ( cd testing_isp ) 
+3. создаем новое виртуальное окружения ( python3.6 -m venv env )
+4. активируем его ( source env/bin/activate )
+5. устанавливаем дополнительные пакеты:
+  a. pip install pexpect
+  b. pip install xlrd
+  c. pip install mysqlclient
+  d. pip install requests
+6. изменяем пароли в файле passwords.py
+7. загружаем базу данных shops.sql в mysql
+8. проверяем запуск  - python3.6 parsing_nagios.py
+9. проверяем запуск  - python3.6 testing_ips.py
+10. добавляем необходимые данные cron 
+*/1 * * * *     isp_test    source /var/scripts/git/testing_isp/env/bin/activate && /var/scripts/git/testing_isp/env/bin/python3.6 /var/scripts/git/testing_isp/parsing_nagios.py >> /var/scripts/git/testing_isp/log/parsing.log 2>> /var/scripts/git/testing_isp/log/parsing_error.log
+*/5 * * * *     isp_test    source /var/scripts/git/testing_isp/env/bin/activate && /var/scripts/git/testing_isp/env/bin/python3.6 /var/scripts/git/testing_isp/testing_providers.py >> /var/scripts/git/testing_isp/log/testing_providers.log 2>> /var/scripts/git/testing_isp/log/testing_providers_error.log
+
+
