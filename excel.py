@@ -27,6 +27,16 @@ def exist_object(object):
         return False
     return True
 
+
+def get_isp_provider(object):
+    l = []
+    if not obj[object].get('isp1') is None:
+        l = [list(obj[object]['isp1'].values())]
+    if not obj[object].get('isp2') is None:
+        l = l + [list(obj[object]['isp2'].values())]
+    return l
+
+
 # Функция которая возвращает ISP1 или ISP2 для словаря
 def find_provider(object, provider):
     if not exist_object(object):
@@ -92,15 +102,15 @@ for i in range(250):
                 obj[sheet.cell(i, OBJECT_NAME).value]['isp1'] ={
                     'name': sheet.cell(i, OBJECT_ISP1).value,
                     'network': sheet.cell(i, OBJECT_ISP1_NETWORK).value,
-                    'ce': sheet.cell(i, OBJECT_ISP1_CE).value,
-                    'pe':  sheet.cell(i, OBJECT_ISP1_PE).value
+                    'ce': str(sheet.cell(i, OBJECT_ISP1_CE).value).strip(),
+                    'pe':  str(sheet.cell(i, OBJECT_ISP1_PE).value).strip()
                 }
             if sheet.cell(i, OBJECT_ISP2).value != '':
                 obj[sheet.cell(i, OBJECT_NAME).value]['isp2'] = {
                     'name': sheet.cell(i, OBJECT_ISP2).value,
                     'network': sheet.cell(i, OBJECT_ISP2_NETWORK).value,
-                    'ce': sheet.cell(i, OBJECT_ISP2_CE).value,
-                    'pe':  sheet.cell(i, OBJECT_ISP2_PE).value
+                    'ce': str(sheet.cell(i, OBJECT_ISP2_CE).value).strip(),
+                    'pe':  str(sheet.cell(i, OBJECT_ISP2_PE).value).strip()
                 }
         else:
             pass
