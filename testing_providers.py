@@ -20,7 +20,7 @@ MAXIMUM_DELAY = 300  # Допустимая задержка для канала
 IP_COD_BEELINE, IP_COD_PROSTOR, IP_COD_DOMRU, IP_COD_INET = get_ip_address()
 SERVICE_LOGIN, SERVICE_PASS = get_service_desc_password()
 
-INTERVAL_PROBLEM_OBJECT = 1
+INTERVAL_PROBLEM_OBJECT = 5
 
 # Глобальные переменные
 t = None  # Переменная для подключения к оборудованию.
