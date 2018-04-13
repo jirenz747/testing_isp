@@ -9,10 +9,10 @@ sudo apt-get install python3.6-dev libmysqlclient-dev
 
 Для работы данной программы необходима версия python 3.6 и выше
 Процесс установки:
-1. скачиваем данную программу ( git clone https://github.com/jirenz747/testing_isp.git )
-2. заходим в новый каталог ( cd testing_isp ) 
-3. создаем новое виртуальное окружения ( python3.6 -m venv env )
-4. активируем его ( source env/bin/activate )
+1. скачиваем данную программу - git clone https://github.com/jirenz747/testing_isp.git 
+2. заходим в новый каталог - cd testing_isp
+3. создаем новое виртуальное окружения - python3.6 -m venv env 
+4. активируем его  - source env/bin/activate
 5. устанавливаем дополнительные пакеты:
   pip install pexpect
   pip install xlrd
