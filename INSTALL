@@ -1,5 +1,11 @@
 INSTALL
 
+Необходимые пакеты для Debian
+sudo apt-get install python3.6-dev libmysqlclient-dev
+
+Необходимые пакеты для Centos/redhat
+Если mysql yum install mysql-server mysql-devel
+Если mariaDB - yum install mariadb-devel python36u-devel
 
 Для работы данной программы необходима версия python 3.6 и выше
 Процесс установки:
@@ -10,11 +16,9 @@ INSTALL
 5. устанавливаем дополнительные пакеты:
   pip install pexpect
   pip install xlrd
-  yum install mysql-server
-  yum install mariadb-devel gcc python36u-devel
   pip install mysqlclient
   pip install requests
-6. изменяем пароли в файле passwords.py
+6. изменяем пароли и ip адреса в файле passwords.py
 7. загружаем базу данных shops.sql в mysql - mysql -u USER -pPASSWORD shops < /path/to/shops.sql
 8. проверяем запуск  - python3.6 parsing_nagios.py
 9. проверяем запуск  - python3.6 testing_ips.py
