@@ -17,10 +17,10 @@ yum -y install python36u-pip
 3. создаем новое виртуальное окружения - python3.6 -m venv env 
 4. активируем его  - source env/bin/activate
 5. устанавливаем дополнительные пакеты:
-  pip install pexpect
-  pip install xlrd
-  pip install mysqlclient
-  pip install requests
+  pip3.6 install pexpect
+  pip3.6 install xlrd
+  pip3.6 install mysqlclient
+  pip3.6 install requests
 6. изменяем пароли и ip адреса в файле passwords.py
 7. загружаем базу данных shops.sql в mysql - mysql -u USER -pPASSWORD shops < /path/to/shops.sql
 8. проверяем запуск  - python3.6 parsing_nagios.py
