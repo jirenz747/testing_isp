@@ -4,6 +4,8 @@ INSTALL
 sudo apt-get install python3.6-dev libmysqlclient-dev
 
 Необходимые пакеты для Centos/redhat
+yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+yum -y install python36u
 Если mysql yum install mysql-server mysql-devel
 Если mariaDB - yum install mariadb-devel python36u-devel
 
